@@ -93,9 +93,39 @@ namespace I_love_you.Properties {
         /// <summary>
         ///   查找 System.Drawing.Bitmap 类型的本地化资源。
         /// </summary>
+        internal static System.Drawing.Bitmap icons8_cancel_48 {
+            get {
+                object obj = ResourceManager.GetObject("icons8-cancel-48", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
         internal static System.Drawing.Bitmap icons8_two_hearts_48 {
             get {
                 object obj = ResourceManager.GetObject("icons8-two-hearts-48", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap v2_122115abe696caf86a6d6ece227e31a6_hd {
+            get {
+                object obj = ResourceManager.GetObject("v2_122115abe696caf86a6d6ece227e31a6_hd", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   查找 System.Drawing.Bitmap 类型的本地化资源。
+        /// </summary>
+        internal static System.Drawing.Bitmap v2_21d18cfdec9bfb951a6aa0b4b24f210b_r {
+            get {
+                object obj = ResourceManager.GetObject("v2-21d18cfdec9bfb951a6aa0b4b24f210b_r", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

