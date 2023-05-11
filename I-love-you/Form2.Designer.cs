@@ -62,6 +62,8 @@
             this.ControlBox = false;
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pictureBox1);
+            this.MaximizeBox = false;
+            this.MinimizeBox = false;
             this.Name = "Form2";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

